@@ -126,4 +126,3 @@ For questions, feedback, or support, visit [goaliecoaches.com](https://goaliecoa
 ---
 
 **Built by Goalies for Goalies** 🏒
-
