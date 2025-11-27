@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goalie Gear Sizer - Goalie Coaches</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: #000000;
+            border-radius: 12px;
+        }
+        .header h1 {
+            font-size: 3rem;
+            color: #22c55e;
+            margin-bottom: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header p {
+            color: #ffffff;
+            font-size: 1.1rem;
+        }
+        .brand-accent {
+            color: #22c55e;
+            font-weight: 700;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            border: 2px solid #000000;
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            color: #000000;
+            margin-bottom: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 3px solid #22c55e;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary {
+            background: #22c55e;
+            color: #000000;
+            flex: 1;
+            border: 2px solid #22c55e;
+        }
+        .btn-primary:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .btn-secondary {
+            background: #000000;
+            color: #ffffff;
+            padding: 14px 28px;
+            border: 2px solid #000000;
+        }
+        .btn-secondary:hover {
+            background: #333333;
+            border-color: #333333;
+            transform: translateY(-2px);
+        }
+        .results-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .results-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .results-container::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 4px;
+        }
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: #16a34a;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666666;
+        }
+        .category-badge {
+            background: #22c55e;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            color: #000000;
+            text-align: center;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .equipment-card {
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .equipment-card:hover {
+            border-color: #22c55e;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+            transform: translateY(-2px);
+        }
+        .equipment-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .equipment-title {
+            font-weight: 800;
+            color: #000000;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .equipment-size {
+            color: #22c55e;
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .equipment-notes {
+            color: #333333;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .guide-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 2px solid #000000;
+        }
+        .guide-section h3 {
+            font-size: 1.3rem;
+            color: #000000;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 3px solid #22c55e;
+            padding-bottom: 10px;
+        }
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .guide-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .guide-item p:first-child {
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .guide-item p:last-child {
+            color: #333333;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .disclaimer {
+            text-align: center;
+            color: #666666;
+            font-size: 0.9rem;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #000000;
+        }
+        .logo-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666666;
+            font-size: 0.9rem;
+        }
+        .logo-section strong {
+            color: #22c55e;
+            font-weight: 800;
+        }
+        .equipment-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #22c55e;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .equipment-link:hover {
+            color: #16a34a;
+            border-bottom: 2px solid #16a34a;
+        }
+        .equipment-link::after {
+            content: ' →';
+            font-weight: 700;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e5e5;
+        }
+        .btn-save {
+            background: #000000;
+            color: #22c55e;
+            border: 2px solid #22c55e;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+        }
+        .btn-save:hover {
+            background: #22c55e;
+            color: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .header {
+                background: #000000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .main-grid > .card:first-child,
+            .guide-section,
+            .disclaimer,
+            .logo-section,
+            .action-buttons {
+                display: none !important;
+            }
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+            .equipment-card {
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .category-badge {
+                background: #22c55e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .equipment-size {
+                color: #22c55e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .equipment-link {
+                color: #22c55e !important;
+                border-bottom: 2px solid #22c55e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Goalie Gear Sizer</h1>
+            <p>Professional equipment sizing by <span class="brand-accent">Goalie Coaches</span></p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Input Form -->
+            <div class="card">
+                <h2>Your Measurements</h2>
+                <div id="measurementForm">
+                    <div class="form-group">
+                        <label>Unit System *</label>
+                        <select id="unitSystem" onchange="toggleUnitSystem()" style="width: 100%; padding: 12px 14px; border: 2px solid #000000; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                            <option value="imperial">Imperial (inches, lbs)</option>
+                            <option value="metric">Metric (cm, kg)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age *</label>
+                        <input type="number" id="age" placeholder="Years">
+                    </div>
+                    <div class="form-group">
+                        <label id="heightLabel">Height * (inches)</label>
+                        <input type="number" step="0.5" id="height" placeholder="e.g., 68">
+                    </div>
+                    <div class="form-group">
+                        <label id="weightLabel">Weight * (lbs)</label>
+                        <input type="number" id="weight" placeholder="e.g., 165">
+                    </div>
+                    <div class="form-group">
+                        <label id="headCircumferenceLabel">Head Circumference * (inches)</label>
+                        <input type="number" step="0.1" id="headCircumference" placeholder="e.g., 22">
+                    </div>
+                    <div class="form-group">
+                        <label id="armSpanLabel">Arm Span (inches)</label>
+                        <input type="number" step="0.5" id="armSpan" placeholder="Fingertip to fingertip">
+                    </div>
+                    <div class="form-group">
+                        <label id="handLengthLabel">Hand Length * (inches)</label>
+                        <input type="number" step="0.1" id="handLength" placeholder="Heel of palm to tip of middle finger">
+                    </div>
+                    <div class="form-group">
+                        <label id="floorToKneeLabel">Floor to Knee (FTK) * (inches)</label>
+                        <input type="number" step="0.1" id="floorToKnee" placeholder="Standing, floor to kneecap center">
+                    </div>
+                    <div class="form-group">
+                        <label id="hipToKneeLabel">Hip to Knee (inches)</label>
+                        <input type="number" step="0.1" id="hipToKnee" placeholder="For pants sizing">
+                    </div>
+                    <div class="form-group">
+                        <label id="neckCircumferenceLabel">Neck Circumference (inches)</label>
+                        <input type="number" step="0.1" id="neckCircumference" placeholder="Below Adam's apple">
+                    </div>
+                    <div class="form-group">
+                        <label id="shoeSizeLabel">US Shoe Size</label>
+                        <input type="number" step="0.5" id="shoeSize" placeholder="e.g., 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Skate Fit Preference</label>
+                        <select id="skateFit" style="width: 100%; padding: 12px 14px; border: 2px solid #000000; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                            <option value="">Select fit system...</option>
+                            <option value="bauer-fit1">Bauer Fit 1 (Narrow)</option>
+                            <option value="bauer-fit2">Bauer Fit 2 (Standard)</option>
+                            <option value="bauer-fit3">Bauer Fit 3 (Wide)</option>
+                            <option value="ccm-d">CCM D (Standard)</option>
+                            <option value="ccm-ee">CCM EE (Wide)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="waistLabel">Waist (inches)</label>
+                        <input type="number" step="0.5" id="waist" placeholder="Natural waist">
+                    </div>
+                    <div class="button-group">
+                        <button type="button" onclick="calculateSizes()" class="btn btn-primary">Calculate Sizes</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="card">
+                <h2>Equipment Recommendations</h2>
+                <div id="results">
+                    <div class="empty-state">
+                        <p style="font-size: 1.1rem;">Enter your measurements and click "Calculate Sizes"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Measurement Guide -->
+        <div class="guide-section">
+            <h3>How to Measure</h3>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <p>Head Circumference:</p>
+                    <p>Wrap tape measure 1/2" above eyebrows and ears at widest part of head</p>
+                </div>
+                <div class="guide-item">
+                    <p>Hand Length (Catch Glove):</p>
+                    <p>Measure from heel of palm to tip of middle finger (most brands). Some brands may also use hand width at knuckles for select models.</p>
+                </div>
+                <div class="guide-item">
+                    <p>Floor to Knee:</p>
+                    <p>Stand straight and measure from floor to center of kneecap</p>
+                </div>
+                <div class="guide-item">
+                    <p>Neck Circumference:</p>
+                    <p>Measure around neck just below Adam's apple, leaving room for comfort</p>
+                </div>
+                <div class="guide-item">
+                    <p>Waist (Goalie Pants):</p>
+                    <p>Measure waist circumference at pant line. Some brands (e.g., Warrior) also require hip-to-knee measurement for vertical depth.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <p>These are general sizing recommendations. Always try on equipment when possible and consult with experts at your local hockey shop for the best fit.</p>
+        </div>
+
+        <div class="logo-section">
+            <p>Powered by <strong>Goalie Coaches</strong> | Built by Goalies for Goalies</p>
+        </div>
+    </div>
+
+    <script>
+        // Conversion functions
+        function inchesToCm(inches) {
+            return inches * 2.54;
+        }
+
+        function cmToInches(cm) {
+            return cm / 2.54;
+        }
+
+        function lbsToKg(lbs) {
+            return lbs * 0.453592;
+        }
+
+        function kgToLbs(kg) {
+            return kg / 0.453592;
+        }
+
+        function formatMeasurement(valueInInches, type = 'length') {
+            const unitSystem = document.getElementById('unitSystem').value;
+            if (unitSystem === 'metric') {
+                const cm = inchesToCm(valueInInches);
+                return `${cm.toFixed(1)} cm (${valueInInches.toFixed(1)}")`;
+            } else {
+                const cm = inchesToCm(valueInInches);
+                return `${valueInInches.toFixed(1)}" (${cm.toFixed(1)} cm)`;
+            }
+        }
+
+        function formatWeight(valueInLbs) {
+            const unitSystem = document.getElementById('unitSystem').value;
+            if (unitSystem === 'metric') {
+                const kg = lbsToKg(valueInLbs);
+                return `${kg.toFixed(1)} kg (${valueInLbs.toFixed(1)} lbs)`;
+            } else {
+                const kg = lbsToKg(valueInLbs);
+                return `${valueInLbs.toFixed(1)} lbs (${kg.toFixed(1)} kg)`;
+            }
+        }
+
+        function toggleUnitSystem() {
+            const unitSystem = document.getElementById('unitSystem').value;
+
+            if (unitSystem === 'metric') {
+                // Update labels to metric
+                document.getElementById('heightLabel').textContent = 'Height * (cm)';
+                document.getElementById('weightLabel').textContent = 'Weight * (kg)';
+                document.getElementById('headCircumferenceLabel').textContent = 'Head Circumference * (cm)';
+                document.getElementById('armSpanLabel').textContent = 'Arm Span (cm)';
+                document.getElementById('handLengthLabel').textContent = 'Hand Length * (cm)';
+                document.getElementById('floorToKneeLabel').textContent = 'Floor to Knee (FTK) * (cm)';
+                document.getElementById('hipToKneeLabel').textContent = 'Hip to Knee (cm)';
+                document.getElementById('neckCircumferenceLabel').textContent = 'Neck Circumference (cm)';
+                document.getElementById('shoeSizeLabel').textContent = 'EU Shoe Size';
+                document.getElementById('waistLabel').textContent = 'Waist (cm)';
+
+                // Update placeholders
+                document.getElementById('height').placeholder = 'e.g., 173';
+                document.getElementById('weight').placeholder = 'e.g., 75';
+                document.getElementById('headCircumference').placeholder = 'e.g., 56';
+                document.getElementById('armSpan').placeholder = 'Fingertip to fingertip';
+                document.getElementById('shoeSize').placeholder = 'e.g., 43';
+                document.getElementById('waist').placeholder = 'Natural waist';
+            } else {
+                // Update labels to imperial
+                document.getElementById('heightLabel').textContent = 'Height * (inches)';
+                document.getElementById('weightLabel').textContent = 'Weight * (lbs)';
+                document.getElementById('headCircumferenceLabel').textContent = 'Head Circumference * (inches)';
+                document.getElementById('armSpanLabel').textContent = 'Arm Span (inches)';
+                document.getElementById('handLengthLabel').textContent = 'Hand Length * (inches)';
+                document.getElementById('floorToKneeLabel').textContent = 'Floor to Knee (FTK) * (inches)';
+                document.getElementById('hipToKneeLabel').textContent = 'Hip to Knee (inches)';
+                document.getElementById('neckCircumferenceLabel').textContent = 'Neck Circumference (inches)';
+                document.getElementById('shoeSizeLabel').textContent = 'US Shoe Size';
+                document.getElementById('waistLabel').textContent = 'Waist (inches)';
+
+                // Update placeholders
+                document.getElementById('height').placeholder = 'e.g., 68';
+                document.getElementById('weight').placeholder = 'e.g., 165';
+                document.getElementById('headCircumference').placeholder = 'e.g., 22';
+                document.getElementById('armSpan').placeholder = 'Fingertip to fingertip';
+                document.getElementById('shoeSize').placeholder = 'e.g., 10';
+                document.getElementById('waist').placeholder = 'Natural waist';
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('unitSystem').value = 'imperial';
+            document.getElementById('age').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('headCircumference').value = '';
+            document.getElementById('armSpan').value = '';
+            document.getElementById('handLength').value = '';
+            document.getElementById('floorToKnee').value = '';
+            document.getElementById('hipToKnee').value = '';
+            document.getElementById('neckCircumference').value = '';
+            document.getElementById('shoeSize').value = '';
+            document.getElementById('skateFit').value = '';
+            document.getElementById('waist').value = '';
+            toggleUnitSystem(); // Reset labels to imperial
+            document.getElementById('results').innerHTML = `
+                <div class="empty-state">
+                    <p style="font-size: 1.1rem;">Enter your measurements and click "Calculate Sizes"</p>
+                </div>
+            `;
+        }
+
+        function calculateSizes() {
+            const unitSystem = document.getElementById('unitSystem').value;
+
+            // Get input values
+            let height = parseFloat(document.getElementById('height').value);
+            let weight = parseFloat(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+            let headCirc = parseFloat(document.getElementById('headCircumference').value);
+            let armSpan = parseFloat(document.getElementById('armSpan').value) || null;
+            let handLength = parseFloat(document.getElementById('handLength').value);
+            let floorToKnee = parseFloat(document.getElementById('floorToKnee').value);
+            let hipToKnee = parseFloat(document.getElementById('hipToKnee').value) || null;
+            let neckCirc = parseFloat(document.getElementById('neckCircumference').value) || null;
+            let shoeSize = parseFloat(document.getElementById('shoeSize').value) || null;
+            const skateFit = document.getElementById('skateFit').value;
+            let waist = parseFloat(document.getElementById('waist').value) || null;
+
+            // Convert metric to imperial for calculations (all formulas use imperial)
+            if (unitSystem === 'metric') {
+                height = cmToInches(height);
+                weight = kgToLbs(weight);
+                headCirc = cmToInches(headCirc);
+                if (armSpan) armSpan = cmToInches(armSpan);
+                handLength = cmToInches(handLength);
+                floorToKnee = cmToInches(floorToKnee);
+                if (hipToKnee) hipToKnee = cmToInches(hipToKnee);
+                if (neckCirc) neckCirc = cmToInches(neckCirc);
+                if (waist) waist = cmToInches(waist);
+                // EU to US shoe size approximation
+                if (shoeSize) shoeSize = shoeSize - 33;
+            }
+
+            // Determine age category
+            let ageCategory = 'Senior';
+            if (age >= 3 && age <= 8) ageCategory = 'Youth';
+            else if (age >= 7 && age <= 13) ageCategory = 'Junior';
+            else if (age >= 12 && age <= 14) ageCategory = 'Intermediate';
+
+            const results = {
+                ageCategory: ageCategory,
+                helmet: calculateHelmet(headCirc),
+                neckGuard: calculateNeckGuard(neckCirc, ageCategory),
+                chestProtector: calculateChestProtector(height, weight, ageCategory, armSpan),
+                glove: calculateGlove(handLength),
+                blocker: calculateBlocker(handLength),
+                pants: calculatePants(height, weight, ageCategory, waist, hipToKnee),
+                jock: calculateJock(waist, ageCategory),
+                legPads: calculateLegPads(floorToKnee, height, ageCategory),
+                skates: calculateSkates(shoeSize, skateFit),
+                stick: calculateStick(height, ageCategory)
+            };
+
+            displayResults(results);
+        }
+
+        function calculateHelmet(headCirc) {
+            if (!headCirc) return { size: 'N/A', notes: 'Please provide head circumference', measurement: null };
+
+            // Determine general size
+            let generalSize = '';
+            if (headCirc >= 20.1 && headCirc < 21.3) generalSize = 'Junior';
+            else if (headCirc >= 21.3 && headCirc < 22.8) generalSize = 'Small/Medium';
+            else if (headCirc >= 22.8 && headCirc < 24.0) generalSize = 'Medium/Large';
+            else if (headCirc >= 24.0 && headCirc <= 24.75) generalSize = 'Large/X-Large';
+            else if (headCirc < 20.1) generalSize = 'Youth';
+            else generalSize = 'Custom/X-Large';
+
+            // Bauer sizing (NME One, Profile, 960)
+            let bauerSize = '';
+            if (headCirc >= 20.9 && headCirc < 22.0) bauerSize = 'S';
+            else if (headCirc >= 21.7 && headCirc < 22.8) bauerSize = 'M';
+            else if (headCirc >= 22.4 && headCirc <= 23.6) bauerSize = 'L';
+            else if (headCirc < 20.9) bauerSize = 'Youth/Custom';
+            else bauerSize = 'Custom';
+
+            // CCM Axis sizing
+            let ccmSize = '';
+            if (headCirc >= 20.9 && headCirc < 22.5) ccmSize = 'S';
+            else if (headCirc >= 21.6 && headCirc < 23.25) ccmSize = 'M';
+            else if (headCirc >= 22.5 && headCirc < 24.0) ccmSize = 'L';
+            else if (headCirc >= 23.25 && headCirc <= 24.75) ccmSize = 'XL';
+            else if (headCirc < 20.9) ccmSize = 'Youth/Custom';
+            else ccmSize = 'Custom';
+
+            // Warrior sizing (based on hat size approximation)
+            let warriorSize = '';
+            if (headCirc >= 21.5 && headCirc < 22.8) warriorSize = 'S/M (hat 6⅞-7⅜)';
+            else if (headCirc >= 22.2 && headCirc < 23.5) warriorSize = 'M/L (hat 7-7½)';
+            else if (headCirc >= 22.6 && headCirc <= 24.0) warriorSize = 'L/XL (hat 7⅛-7½)';
+            else if (headCirc < 21.5) warriorSize = 'Youth/Custom';
+            else warriorSize = 'Custom';
+
+            // Vaughn sizing
+            let vaughnSize = '';
+            if (headCirc >= 20.1 && headCirc < 21.3) vaughnSize = 'Jr';
+            else if (headCirc >= 21.3 && headCirc < 22.8) vaughnSize = 'Adult M';
+            else if (headCirc >= 22.8 && headCirc <= 24.5) vaughnSize = 'Adult L';
+            else if (headCirc < 20.1) vaughnSize = 'Youth';
+            else vaughnSize = 'Adult L/Custom';
+
+            const brandSizing = `
+                <strong>Brand-Specific Sizing:</strong><br>
+                • Bauer (NME One/Profile/960): <strong>${bauerSize}</strong><br>
+                • CCM (Axis Pro): <strong>${ccmSize}</strong><br>
+                • Warrior (R/F2): <strong>${warriorSize}</strong><br>
+                • Vaughn: <strong>${vaughnSize}</strong> (verify at fitting - varies by model)
+            `;
+
+            return {
+                size: generalSize,
+                notes: `Mask should fit snug with no gaps at the hat line (just above eyebrows/temples). Chin centered in cup, backplate gap ≈ finger width, no bobble with quick head turns.<br><br>${brandSizing}`,
+                measurement: formatMeasurement(headCirc)
+            };
+        }
+
+        function calculateChestProtector(height, weight, category, armSpan) {
+            if (!height) return { size: 'N/A', notes: 'Please provide height', measurement: null };
+
+            // Determine general size based on height
+            let generalSize = '';
+            if (category === 'Youth') {
+                if (height >= 40 && height < 47) generalSize = 'S/M';
+                else if (height >= 47 && height <= 57) generalSize = 'M/L';
+                else generalSize = 'Youth';
+            } else if (category === 'Junior') {
+                if (height >= 48 && height < 53) generalSize = 'S/M';
+                else if (height >= 53 && height < 59) generalSize = 'M/L';
+                else if (height >= 59 && height < 62) generalSize = 'L';
+                else if (height >= 62 && height <= 65) generalSize = 'XL';
+                else generalSize = 'Junior';
+            } else if (category === 'Intermediate') {
+                if (height >= 52 && height < 59) generalSize = 'M';
+                else if (height >= 59 && height < 62) generalSize = 'L';
+                else if (height >= 62 && height < 64) generalSize = 'XL';
+                else if (height >= 64 && height <= 66) generalSize = 'XXL';
+                else generalSize = 'Intermediate';
+            } else {
+                // Senior sizing based on height
+                if (height >= 60 && height < 62) generalSize = 'XS';
+                else if (height >= 62 && height < 65) generalSize = 'S';
+                else if (height >= 65 && height < 69) generalSize = 'M';
+                else if (height >= 69 && height < 72) generalSize = 'L';
+                else if (height >= 72) generalSize = 'XL';
+                else generalSize = 'S';
+            }
+
+            // Brand-specific sizing for Senior level
+            let brandSizing = '';
+            if (category === 'Senior') {
+                // Bauer sizing (height-based)
+                let bauerSize = '';
+                if (height >= 63 && height < 65) bauerSize = 'S (5\'3"-5\'5")';
+                else if (height >= 66 && height < 69) bauerSize = 'M (5\'6"-5\'9")';
+                else if (height >= 70 && height < 72) bauerSize = 'L (5\'10"-6\'0")';
+                else if (height >= 73) bauerSize = 'XL (6\'1"-6\'5")';
+                else bauerSize = 'S (5\'3"-5\'5")';
+
+                // Warrior sizing (arm span based if provided)
+                let warriorSize = '';
+                if (armSpan) {
+                    if (armSpan >= 67 && armSpan < 70) warriorSize = 'S (67-70" span)';
+                    else if (armSpan >= 70 && armSpan < 73) warriorSize = 'M (70-73" span)';
+                    else if (armSpan >= 73 && armSpan < 76) warriorSize = 'L (73-76" span)';
+                    else if (armSpan >= 76) warriorSize = 'XL (76"+ span)';
+                    else warriorSize = 'S (67-70" span)';
+                } else {
+                    warriorSize = 'Measure arm span for accurate sizing';
+                }
+
+                // Vaughn sizing (height + arm span hybrid)
+                let vaughnSize = '';
+                if (armSpan) {
+                    if (height >= 63 && height < 65 && armSpan >= 63 && armSpan < 65) vaughnSize = 'S (5\'3"-5\'5", 63-65" span)';
+                    else if (height >= 66 && height < 69 && armSpan >= 66 && armSpan < 69) vaughnSize = 'M (5\'6"-5\'9", 66-69" span)';
+                    else if (height >= 70 && height < 72 && armSpan >= 70 && armSpan < 72) vaughnSize = 'L (5\'10"-6\'0", 70-72" span)';
+                    else if (height >= 73 && armSpan >= 73) vaughnSize = 'XL (6\'1"-6\'5", 73-77" span)';
+                    else vaughnSize = 'M (verify with retailer chart)';
+                } else {
+                    vaughnSize = 'Measure arm span for accurate sizing';
+                }
+
+                // Brian's sizing (height + arm length from shoulder to wrist)
+                let briansSize = '';
+                if (height >= 63 && height < 65) briansSize = 'S (5\'3"-5\'5", ~19" arm length)';
+                else if (height >= 66 && height < 69) briansSize = 'M (5\'6"-5\'9", ~20" arm length)';
+                else if (height >= 70 && height < 72) briansSize = 'L (5\'10"-6\'0", ~21" arm length)';
+                else if (height >= 73 && height < 77) briansSize = 'XL (6\'1"-6\'5", ~22" arm length)';
+                else if (height >= 77) briansSize = 'XXL (6\'5"-6\'7", ~23" arm length)';
+                else briansSize = 'S (measure shoulder-to-wrist)';
+
+                // CCM sizing (arm span based, similar to Warrior)
+                let ccmSize = '';
+                if (armSpan) {
+                    if (armSpan >= 64 && armSpan < 69) ccmSize = 'S';
+                    else if (armSpan >= 66 && armSpan < 72) ccmSize = 'M';
+                    else if (armSpan >= 69 && armSpan < 74) ccmSize = 'L';
+                    else if (armSpan >= 72) ccmSize = 'XL';
+                    else ccmSize = 'S';
+                } else {
+                    ccmSize = 'Measure arm span for accurate sizing';
+                }
+
+                brandSizing = `
+                    <strong>Brand-Specific Sizing (Senior):</strong><br>
+                    • Bauer: <strong>${bauerSize}</strong> (height-based)<br>
+                    • Warrior: <strong>${warriorSize}</strong><br>
+                    • CCM: <strong>${ccmSize}</strong> (arm span)<br>
+                    • Vaughn: <strong>${vaughnSize}</strong><br>
+                    • Brian's: <strong>${briansSize}</strong> (custom-friendly)<br><br>
+                    <strong>Fit Checks:</strong><br>
+                    • Shoulder caps centered, elbow caps aligned<br>
+                    • Wrist cuffs end ~1" above wrist bone (gloves overlap cleanly)<br>
+                    • Belly pad to belt line (not below pants)<br>
+                    • If glove cuff collides with forearm: drop CA size or shorten arm straps<br>
+                    • If belly pad spans below pant belt: shorten torso straps or step down size
+                `;
+            } else {
+                brandSizing = 'Shoulder caps centered, elbow caps aligned, wrist cuffs end ~1" above wrist bone. Belly pad to belt line.';
+            }
+
+            let measurementText = `Height: ${formatMeasurement(height)}`;
+            if (armSpan) {
+                measurementText += ` | Arm span: ${formatMeasurement(armSpan)}`;
+            }
+
+            return {
+                size: `${category} ${generalSize}`,
+                notes: brandSizing,
+                measurement: measurementText
+            };
+        }
+
+        function calculateGlove(handLength) {
+            if (!handLength) return { size: 'N/A', notes: 'Please provide hand length (heel of palm to tip of middle finger)', measurement: null };
+
+            // Determine general category based on hand length
+            let category = '';
+            let sizeRange = '';
+            if (handLength < 4.5) {
+                category = 'Youth';
+                sizeRange = '< 4.5"';
+            } else if (handLength >= 4.5 && handLength <= 5.0) {
+                category = 'Youth';
+                sizeRange = '4.5–5"';
+            } else if (handLength > 5.0 && handLength <= 5.5) {
+                category = 'Junior';
+                sizeRange = '~5.5"';
+            } else if (handLength > 5.5 && handLength <= 6.5) {
+                category = 'Junior';
+                sizeRange = '~5.5–6.5"';
+            } else if (handLength > 6.5 && handLength <= 7.0) {
+                category = 'Intermediate';
+                sizeRange = '~6–7"';
+            } else if (handLength > 7.0 && handLength <= 8.5) {
+                category = 'Senior';
+                sizeRange = '~7–8.5"';
+            } else {
+                category = 'Senior';
+                sizeRange = '> 8.5"';
+            }
+
+            // Brand-specific sizing
+            let bauerSize = '';
+            let warriorSize = '';
+            let briansSize = '';
+            let ccmSize = '';
+            let vaughnSize = '';
+            let trueSize = '';
+
+            if (category === 'Senior') {
+                // Bauer: Official glove/blocker guide uses hand length to wrist crease; Sr = 7–8.5"
+                if (handLength >= 7.0 && handLength <= 8.5) {
+                    bauerSize = 'Senior (7–8.5")';
+                } else if (handLength > 8.5) {
+                    bauerSize = 'Senior/Custom (>8.5")';
+                } else {
+                    bauerSize = 'Intermediate (6–7")';
+                }
+
+                // Warrior: Sr catcher ~7–8.5"
+                if (handLength >= 7.0 && handLength <= 8.5) {
+                    warriorSize = 'Senior (~7–8.5")';
+                } else if (handLength > 8.5) {
+                    warriorSize = 'Senior/Custom (>8.5")';
+                } else {
+                    warriorSize = 'Intermediate (~6.35–7")';
+                }
+
+                // Brian's: Adds SR-XL palm (>8.25") option
+                if (handLength > 8.25) {
+                    briansSize = 'SR-XL (>8.25")';
+                } else if (handLength >= 7.0) {
+                    briansSize = 'Senior (7–8.25")';
+                } else {
+                    briansSize = 'Intermediate (6–7")';
+                }
+
+                // CCM/Vaughn/TRUE: Follow the same hand-length bins
+                if (handLength >= 7.0 && handLength <= 8.5) {
+                    ccmSize = 'Senior (7–8.5")';
+                    vaughnSize = 'Senior (7–8.5")';
+                    trueSize = 'Senior (7–8.5")';
+                } else if (handLength > 8.5) {
+                    ccmSize = 'Senior/Custom (>8.5")';
+                    vaughnSize = 'Senior/Custom (>8.5")';
+                    trueSize = 'Senior/Custom (>8.5")';
+                } else {
+                    ccmSize = 'Intermediate (6–7")';
+                    vaughnSize = 'Intermediate (6–7")';
+                    trueSize = 'Intermediate (6–7")';
+                }
+            } else if (category === 'Intermediate') {
+                // Bauer: Int = 6–7"
+                bauerSize = 'Intermediate (6–7")';
+                // Warrior: Int ~6.35–7"
+                warriorSize = 'Intermediate (~6.35–7")';
+                briansSize = 'Intermediate (6–7")';
+                ccmSize = 'Intermediate (6–7")';
+                vaughnSize = 'Intermediate (6–7")';
+                trueSize = 'Intermediate (6–7")';
+            } else if (category === 'Junior') {
+                bauerSize = 'Junior (~5.5–6.5")';
+                warriorSize = 'Junior (~5.5–6.5")';
+                briansSize = 'Junior (~5.5–6.5")';
+                ccmSize = 'Junior (~5.5–6.5")';
+                vaughnSize = 'Junior (~5.5–6.5")';
+                trueSize = 'Junior (~5.5–6.5")';
+            } else {
+                bauerSize = 'Youth (<~4.5–5")';
+                warriorSize = 'Youth (<~4.5–5")';
+                briansSize = 'Youth (<~4.5–5")';
+                ccmSize = 'Youth (<~4.5–5")';
+                vaughnSize = 'Youth (<~4.5–5")';
+                trueSize = 'Youth (<~4.5–5")';
+            }
+
+            const brandSizing = `
+                <strong>Brand-Specific Sizing:</strong><br>
+                • Bauer: <strong>${bauerSize}</strong> (hand length to wrist crease)<br>
+                • Warrior: <strong>${warriorSize}</strong><br>
+                • Brian's: <strong>${briansSize}</strong>${handLength > 8.25 ? ' — SR-XL palm option available' : ''}<br>
+                • CCM: <strong>${ccmSize}</strong><br>
+                • Vaughn: <strong>${vaughnSize}</strong><br>
+                • TRUE: <strong>${trueSize}</strong> (some models may use hand width; check specific model)<br><br>
+                <strong>Fit Check:</strong><br>
+                • Can you fully close it out of the box? If not, consider "Game-Ready" palm or different break angle—not a different size.<br>
+                • Break angles vary by brand (e.g., Bauer 60° vs 90°, CCM 580/590/600). If you know your break preference, factor that into model selection.
+            `;
+
+            return {
+                size: category,
+                notes: brandSizing,
+                measurement: `Hand length: ${formatMeasurement(handLength)} (${sizeRange})`
+            };
+        }
+
+        function calculateBlocker(handLength) {
+            if (!handLength) return { size: 'N/A', notes: 'Please provide hand length (heel of palm to tip of middle finger)', measurement: null };
+
+            // Blocker sizing follows same hand length bins as glove
+            let category = '';
+            let sizeRange = '';
+            if (handLength < 4.5) {
+                category = 'Youth';
+                sizeRange = '< 4.5"';
+            } else if (handLength >= 4.5 && handLength <= 5.0) {
+                category = 'Youth';
+                sizeRange = '4.5–5"';
+            } else if (handLength > 5.0 && handLength <= 5.5) {
+                category = 'Junior';
+                sizeRange = '~5.5"';
+            } else if (handLength > 5.5 && handLength <= 6.5) {
+                category = 'Junior';
+                sizeRange = '~5.5–6.5"';
+            } else if (handLength > 6.5 && handLength <= 7.0) {
+                category = 'Intermediate';
+                sizeRange = '~6–7"';
+            } else if (handLength > 7.0 && handLength <= 8.5) {
+                category = 'Senior';
+                sizeRange = '~7–8.5"';
+            } else {
+                category = 'Senior';
+                sizeRange = '> 8.5"';
+            }
+
+            // Warrior: Explicit hand-length windows for Sr/Int and Sr sub-sizes (Med/Lrg/XL)
+            let warriorSize = '';
+            if (category === 'Senior') {
+                // Warrior Senior sub-sizes based on hand length
+                if (handLength >= 7.0 && handLength < 7.5) {
+                    warriorSize = 'Senior Medium (~7–7.5")';
+                } else if (handLength >= 7.5 && handLength < 8.0) {
+                    warriorSize = 'Senior Large (~7.5–8")';
+                } else if (handLength >= 8.0 && handLength <= 8.5) {
+                    warriorSize = 'Senior XL (~8–8.5")';
+                } else if (handLength > 8.5) {
+                    warriorSize = 'Senior XL/Custom (>8.5")';
+                } else {
+                    warriorSize = 'Senior (~7–8.5")';
+                }
+            } else if (category === 'Intermediate') {
+                warriorSize = 'Intermediate (~6.35–7")';
+            } else if (category === 'Junior') {
+                warriorSize = 'Junior (~5.5–6.5")';
+            } else {
+                warriorSize = 'Youth (<~4.5–5")';
+            }
+
+            // Standard bins for other brands
+            let bauerSize = category;
+            let ccmSize = category;
+            let vaughnSize = category;
+            let trueSize = category;
+
+            const brandSizing = `
+                <strong>Brand-Specific Sizing:</strong><br>
+                • Warrior: <strong>${warriorSize}</strong> (explicit hand-length windows with Sr sub-sizes)<br>
+                • Bauer: <strong>${bauerSize}</strong> (standard hand-length bins)<br>
+                • CCM: <strong>${ccmSize}</strong> (standard hand-length bins)<br>
+                • Vaughn: <strong>${vaughnSize}</strong> (standard hand-length bins)<br>
+                • TRUE: <strong>${trueSize}</strong> (standard hand-length bins)<br><br>
+                <strong>Fit Check:</strong><br>
+                • Fingers should be <¼" from finger-stall tips<br>
+                • Cuff should overlap chest protector (CA) forearm
+            `;
+
+            return {
+                size: category,
+                notes: brandSizing,
+                measurement: `Hand length: ${formatMeasurement(handLength)} (${sizeRange})`
+            };
+        }
+
+        function calculatePants(height, weight, category, waist, hipToKnee) {
+            if (!height || !waist) return { size: 'N/A', notes: 'Please provide height and waist measurement', measurement: null };
+
+            // Determine general size based on category and height (fallback)
+            let generalSize = '';
+            if (category === 'Youth') {
+                generalSize = 'Youth S/M';
+            } else if (category === 'Junior') {
+                if (height >= 48 && height < 54) generalSize = 'S';
+                else if (height >= 54 && height < 62) generalSize = 'M';
+                else if (height >= 62 && height <= 68) generalSize = 'L';
+                else generalSize = 'M';
+            } else if (category === 'Intermediate') {
+                if (height >= 52 && height < 59) generalSize = 'S';
+                else if (height >= 59 && height < 62) generalSize = 'M';
+                else if (height >= 62 && height <= 66) generalSize = 'L';
+                else generalSize = 'M';
+            } else {
+                // Senior sizing - primarily waist-based
+                if (height >= 60 && height < 65) generalSize = 'S';
+                else if (height >= 65 && height < 69) generalSize = 'M';
+                else if (height >= 69 && height < 72) generalSize = 'L';
+                else if (height >= 72) generalSize = 'XL';
+                else generalSize = 'S';
+            }
+
+            // Brand-specific sizing for Senior level
+            let brandSizing = '';
+            if (category === 'Senior') {
+                // Bauer sizing (waist-based with age/weight ranges on retail charts)
+                let bauerSize = '';
+                if (waist >= 28 && waist < 32) bauerSize = 'S (28-32")';
+                else if (waist >= 32 && waist < 36) bauerSize = 'M (32-36")';
+                else if (waist >= 34 && waist < 38) bauerSize = 'L (34-38")';
+                else if (waist >= 38 && waist <= 42) bauerSize = 'XL (38-42")';
+                else if (waist < 28) bauerSize = 'S (<28")';
+                else bauerSize = 'XL (>42")';
+
+                // CCM sizing (Senior waist bands)
+                let ccmSize = '';
+                if (waist >= 28 && waist <= 32) ccmSize = 'S (28-32")';
+                else if (waist >= 32 && waist <= 36) ccmSize = 'M (32-36")';
+                else if (waist >= 34 && waist <= 38) ccmSize = 'L (34-38")';
+                else if (waist >= 38 && waist <= 42) ccmSize = 'XL (38-42")';
+                else if (waist < 28) ccmSize = 'S (<28")';
+                else ccmSize = 'XL (>42")';
+
+                // Vaughn sizing
+                let vaughnSize = '';
+                if (waist >= 30 && waist <= 32) vaughnSize = 'S (30-32")';
+                else if (waist >= 32 && waist <= 36) vaughnSize = 'M (32-36")';
+                else if (waist >= 34 && waist <= 38) vaughnSize = 'L (34-38")';
+                else if (waist >= 38 && waist <= 42) vaughnSize = 'XL (38-42")';
+                else if (waist < 30) vaughnSize = 'S (<30")';
+                else vaughnSize = 'XL (>42")';
+
+                // Warrior sizing (waist + hip-to-knee for Senior)
+                let warriorSize = '';
+                if (hipToKnee) {
+                    if (waist >= 28 && waist < 34 && hipToKnee >= 18 && hipToKnee < 22) warriorSize = 'S (waist 28-34", H-to-K 18-22")';
+                    else if (waist >= 32 && waist < 38 && hipToKnee >= 20 && hipToKnee < 24) warriorSize = 'M (waist 32-38", H-to-K 20-24")';
+                    else if (waist >= 36 && waist < 42 && hipToKnee >= 22 && hipToKnee < 26) warriorSize = 'L (waist 36-42", H-to-K 22-26")';
+                    else if (waist >= 40 && hipToKnee >= 24) warriorSize = 'XL (waist 40"+ , H-to-K 24"+ )';
+                    else warriorSize = 'M (verify with waist and H-to-K measurements)';
+                } else {
+                    warriorSize = 'Measure hip-to-knee for accurate Warrior sizing';
+                }
+
+                // Brian's sizing
+                let briansSize = '';
+                if (waist >= 30 && waist <= 32) briansSize = 'S (30-32")';
+                else if (waist >= 32 && waist <= 34) briansSize = 'M (32-34")';
+                else if (waist >= 34 && waist <= 36) briansSize = 'L (34-36")';
+                else if (waist >= 36 && waist <= 38) briansSize = 'XL (36-38")';
+                else if (waist >= 38 && waist <= 40) briansSize = 'XXL (38-40")';
+                else if (waist < 30) briansSize = 'S (<30")';
+                else briansSize = 'XXL (>40")';
+
+                // TRUE sizing
+                let trueSize = '';
+                if (waist >= 26 && waist <= 30) trueSize = 'S (26-30")';
+                else if (waist >= 30 && waist <= 34) trueSize = 'M (30-34")';
+                else if (waist >= 34 && waist <= 38) trueSize = 'L (34-38")';
+                else if (waist >= 38 && waist <= 42) trueSize = 'XL (38-42")';
+                else if (waist < 26) trueSize = 'S (<26")';
+                else trueSize = 'XL (>42")';
+
+                brandSizing = `
+                    <strong>Brand-Specific Sizing (Senior):</strong><br>
+                    • Bauer: <strong>${bauerSize}</strong> (size by waist; retail charts include age/weight ranges)<br>
+                    • CCM: <strong>${ccmSize}</strong> (Senior waist bands: S 28-32", M 32-36", L 34-38", XL 38-42")<br>
+                    • Vaughn: <strong>${vaughnSize}</strong> (Senior: S 30-32", M 32-36", L 34-38", XL 38-42")<br>
+                    • Warrior: <strong>${warriorSize}</strong>${!hipToKnee ? ' — Hip-to-knee measurement required for Warrior sizing' : ''}<br>
+                    • Brian's: <strong>${briansSize}</strong> (Sr: S 30-32", M 32-34", L 34-36", XL 36-38", XXL 38-40")<br>
+                    • TRUE: <strong>${trueSize}</strong> (Sr: S 26-30", M 30-34", L 34-38", XL 38-42")<br><br>
+                    <strong>Fit Checks:</strong><br>
+                    • Waistband should sit at natural waist (pant line)<br>
+                    • Thigh rises should extend 2-3" above knee when in butterfly<br>
+                    • Check if chest protector (CA) overlaps inside the pant — if not, suggest next rise up or different model cut (taller rise)<br>
+                    • Verify belly flap clears the pant belt — if not, suggest next rise up or different model cut (taller rise)
+                `;
+            } else {
+                // Junior/Intermediate sizing (waist-based where applicable)
+                let juniorIntSizing = '';
+                if (category === 'Intermediate') {
+                    // Intermediate ranges are narrower than Senior
+                    if (waist >= 26 && waist <= 30) juniorIntSizing = 'S (26-30")';
+                    else if (waist >= 28 && waist <= 32) juniorIntSizing = 'M (28-32")';
+                    else if (waist >= 30 && waist <= 34) juniorIntSizing = 'L (30-34")';
+                    else juniorIntSizing = 'M (verify with retailer chart)';
+                } else if (category === 'Junior') {
+                    // Junior ranges are narrower
+                    if (waist >= 24 && waist <= 28) juniorIntSizing = 'S (24-28")';
+                    else if (waist >= 26 && waist <= 30) juniorIntSizing = 'M (26-30")';
+                    else if (waist >= 28 && waist <= 32) juniorIntSizing = 'L (28-32")';
+                    else juniorIntSizing = 'M (verify with retailer chart)';
+                }
+
+                brandSizing = `
+                    <strong>Brand-Specific Sizing (${category}):</strong><br>
+                    • Most brands use narrower waist ranges for ${category} level<br>
+                    • ${juniorIntSizing ? `Typical range: ${juniorIntSizing}` : 'Check individual brand charts for ${category} sizing'}<br>
+                    • Warrior ${category}/Junior: Height-based sizing (verify with retailer chart)<br><br>
+                    <strong>Fit Checks:</strong><br>
+                    • Waistband should sit at natural waist (pant line)<br>
+                    • Thigh rises should extend 2-3" above knee when in butterfly<br>
+                    • Check if chest protector (CA) overlaps inside the pant — if not, suggest next rise up or different model cut (taller rise)<br>
+                    • Verify belly flap clears the pant belt — if not, suggest next rise up or different model cut (taller rise)
+                `;
+            }
+
+            let measurementText = `Waist: ${formatMeasurement(waist)}`;
+            if (hipToKnee) {
+                measurementText += ` | Hip to knee: ${formatMeasurement(hipToKnee)}`;
+            }
+            measurementText += ` | Height: ${formatMeasurement(height)}`;
+
+            return {
+                size: `${category} ${generalSize}`,
+                notes: brandSizing,
+                measurement: measurementText
+            };
+        }
+
+        function calculateJock(waist, category) {
+            if (!waist || isNaN(waist)) {
+                return { size: category, notes: 'Jock: S (24-28"), M (28-32"), L (32-36"), XL (36"+). Jill: Select based on waist size', measurement: null };
+            }
+
+            let size = '';
+            if (waist >= 20 && waist < 24) size = 'XS';
+            else if (waist >= 24 && waist < 28) size = 'S';
+            else if (waist >= 28 && waist < 32) size = 'M';
+            else if (waist >= 32 && waist < 36) size = 'L';
+            else if (waist >= 36) size = 'XL';
+            else size = 'S';
+
+            return {
+                size: `${category} ${size}`,
+                notes: 'Jock for males, Jill for females. Should fit snugly for proper protection',
+                measurement: `Waist: ${formatMeasurement(waist)}`
+            };
+        }
+
+        function calculateLegPads(floorToKnee, height, category) {
+            if (!floorToKnee || !height) {
+                return { size: 'N/A', notes: 'Please provide floor-to-knee measurement. Measure from floor to center of kneecap', measurement: null };
+            }
+
+            // Estimate ATK from FTK since dedicated input was removed
+            const atk = floorToKnee - 2.5;
+
+            let padSize = Math.round(atk);
+            const thighRise = height > 66 ? '11-12"' : height > 60 ? '10-11"' : '9-10"';
+
+            let measurementText = `Floor to knee: ${formatMeasurement(floorToKnee)} | Est. ATK: ${formatMeasurement(atk)}`;
+
+            return {
+                size: `${padSize}"`,
+                notes: `Pad size: ${padSize}" (based on ${atk.toFixed(1)}" ATK estimate). Thigh rise: ${thighRise}. Top of pad should reach mid-thigh when in butterfly`,
+                measurement: measurementText
+            };
+        }
+
+        function calculateSkates(shoeSize, skateFit) {
+            if (!shoeSize) return { size: 'N/A', notes: 'Typically 1-1.5 sizes smaller than shoe size', measurement: null };
+
+            const skateSize = (shoeSize - 1.5).toFixed(1);
+            const unitSystem = document.getElementById('unitSystem').value;
+            const sizeLabel = unitSystem === 'metric' ? 'EU' : 'US';
+
+            let fitNote = '';
+            if (skateFit) {
+                const fitLabels = {
+                    'bauer-fit1': 'Bauer Fit 1 (Narrow)',
+                    'bauer-fit2': 'Bauer Fit 2 (Standard)',
+                    'bauer-fit3': 'Bauer Fit 3 (Wide)',
+                    'ccm-d': 'CCM D (Standard)',
+                    'ccm-ee': 'CCM EE (Wide)'
+                };
+                fitNote = ` Recommended fit: ${fitLabels[skateFit]}.`;
+            }
+
+            return {
+                size: `${skateSize}`,
+                notes: `Start 1.5 sizes down from shoe size.${fitNote} Cowling should add stability for goalie-specific support`,
+                measurement: `${sizeLabel} shoe size: ${shoeSize}`
+            };
+        }
+
+        function calculateStick(height, category) {
+            if (!height) return { size: 'N/A', notes: 'Please provide height', measurement: null };
+
+            let stickSize = '';
+
+            if (category === 'Youth') {
+                stickSize = '18-21" paddle, 44-48" overall';
+            } else if (category === 'Junior') {
+                if (height < 54) stickSize = '21" paddle, 48" overall';
+                else if (height >= 54 && height < 60) stickSize = '23" paddle, 50" overall';
+                else stickSize = '24" paddle, 52" overall';
+            } else if (category === 'Intermediate') {
+                if (height < 62) stickSize = '24" paddle, 52" overall';
+                else stickSize = '25" paddle, 54" overall';
+            } else {
+                if (height >= 60 && height < 65) stickSize = '25" paddle, 54" overall';
+                else if (height >= 65 && height < 69) stickSize = '26" paddle, 56" overall';
+                else if (height >= 69) stickSize = '27" paddle, 58" overall';
+                else stickSize = '26" paddle, 56" overall';
+            }
+
+            return {
+                size: stickSize,
+                notes: 'Standing in skates, stick should reach between chin and nose. Paddle height affects playing style',
+                measurement: `Height: ${formatMeasurement(height)}`
+            };
+        }
+
+        function calculateNeckGuard(neckCirc, category) {
+            if (!neckCirc) return { size: category, notes: 'Measure around neck below Adam\'s apple', measurement: null };
+
+            let size = '';
+            if (neckCirc >= 10 && neckCirc <= 14) size = 'S/M';
+            else if (neckCirc > 14 && neckCirc <= 17) size = 'L/XL';
+            else size = category === 'Youth' ? 'Youth' : category === 'Junior' ? 'Junior' : 'S/M';
+
+            return {
+                size: `${size} (${category})`,
+                notes: 'Should cover throat, fit snugly without choking, allow free head movement',
+                measurement: `Neck circumference: ${formatMeasurement(neckCirc)}`
+            };
+        }
+
+        function displayResults(results) {
+            const equipment = [
+                { 
+                    title: 'Helmet (Mask)', 
+                    data: results.helmet,
+                    link: 'https://goaliecoaches.com/best-goalie-masks-for-protection/',
+                    linkText: 'View the best goalie masks for this year'
+                },
+                { 
+                    title: 'Neck Guard', 
+                    data: results.neckGuard,
+                    link: 'https://goaliecoaches.com/neck-throat/',
+                    linkText: 'See top-rated neck guard options'
+                },
+                { 
+                    title: 'Chest Protector', 
+                    data: results.chestProtector,
+                    link: 'https://goaliecoaches.com/chest-protectors/',
+                    linkText: 'Find the best chest protectors'
+                },
+                { 
+                    title: 'Glove (Catcher)', 
+                    data: results.glove,
+                    link: 'https://goaliecoaches.com/goalie-gloves/',
+                    linkText: 'Explore our glove buying guide'
+                },
+                { 
+                    title: 'Blocker', 
+                    data: results.blocker,
+                    link: 'https://goaliecoaches.com/best-goalie-blocker/',
+                    linkText: 'Check out top blocker recommendations'
+                },
+                { 
+                    title: 'Goalie Pants', 
+                    data: results.pants,
+                    link: 'https://goaliecoaches.com/goalie-pants/',
+                    linkText: 'Browse the best goalie pants'
+                },
+                { 
+                    title: 'Jock / Jill', 
+                    data: results.jock,
+                    link: 'https://goaliecoaches.com/finding-the-best-goalie-jock/',
+                    linkText: 'See our protective cup guide'
+                },
+                { 
+                    title: 'Leg Pads', 
+                    data: results.legPads,
+                    link: 'https://goaliecoaches.com/best-goalie-pads/',
+                    linkText: 'Discover this year\'s top leg pads'
+                },
+                { 
+                    title: 'Skates', 
+                    data: results.skates,
+                    link: 'https://goaliecoaches.com/goalie-skates/',
+                    linkText: 'Find the perfect goalie skates'
+                },
+                { 
+                    title: 'Stick', 
+                    data: results.stick,
+                    link: 'https://goaliecoaches.com/goalie-sticks/',
+                    linkText: 'View our goalie stick buying guide'
+                }
+            ];
+
+            let html = `
+                <div class="results-container">
+                    <div class="category-badge">Category: ${results.ageCategory}</div>
+            `;
+
+            equipment.forEach(item => {
+                const measurementLine = item.data.measurement ? `<div class="equipment-notes" style="color: #22c55e; font-weight: 600; margin-top: 8px;">${item.data.measurement}</div>` : '';
+                html += `
+                    <div class="equipment-card">
+                        <div class="equipment-header">
+                            <div style="flex: 1;">
+                                <div class="equipment-title">${item.title}</div>
+                                <div class="equipment-size">${item.data.size}</div>
+                                ${measurementLine}
+                                <div class="equipment-notes">${item.data.notes}</div>
+                                <a href="${item.link}" target="_blank" class="equipment-link">${item.linkText}</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+            
+            // Add action buttons after results
+            const actionButtonsHtml = `
+                <div class="action-buttons">
+                    <button onclick="downloadPDF()" class="btn-save">💾 Save as PDF</button>
+                </div>
+            `;
+            document.getElementById('results').innerHTML += actionButtonsHtml;
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const unitSystem = document.getElementById('unitSystem').value;
+
+            // Get current results data
+            let height = parseFloat(document.getElementById('height').value);
+            let weight = parseFloat(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+            let headCirc = parseFloat(document.getElementById('headCircumference').value);
+            let armSpan = parseFloat(document.getElementById('armSpan').value) || null;
+            let handLength = parseFloat(document.getElementById('handLength').value);
+            let floorToKnee = parseFloat(document.getElementById('floorToKnee').value);
+            let hipToKnee = parseFloat(document.getElementById('hipToKnee').value) || null;
+            let neckCirc = parseFloat(document.getElementById('neckCircumference').value) || null;
+            let shoeSize = parseFloat(document.getElementById('shoeSize').value) || null;
+            const skateFit = document.getElementById('skateFit').value;
+            let waist = parseFloat(document.getElementById('waist').value) || null;
+
+            // Store original values for display
+            const origHeight = height;
+            const origWeight = weight;
+
+            // Convert metric to imperial for calculations
+            if (unitSystem === 'metric') {
+                height = cmToInches(height);
+                weight = kgToLbs(weight);
+                headCirc = cmToInches(headCirc);
+                if (armSpan) armSpan = cmToInches(armSpan);
+                handLength = cmToInches(handLength);
+                floorToKnee = cmToInches(floorToKnee);
+                if (hipToKnee) hipToKnee = cmToInches(hipToKnee);
+                if (neckCirc) neckCirc = cmToInches(neckCirc);
+                if (waist) waist = cmToInches(waist);
+                if (shoeSize) shoeSize = shoeSize - 33;
+            }
+            
+            // Determine age category
+            let ageCategory = 'Senior';
+            if (age >= 3 && age <= 8) ageCategory = 'Youth';
+            else if (age >= 7 && age <= 13) ageCategory = 'Junior';
+            else if (age >= 12 && age <= 14) ageCategory = 'Intermediate';
+
+            // Recalculate results for PDF
+            const results = {
+                helmet: calculateHelmet(headCirc),
+                neckGuard: calculateNeckGuard(neckCirc, ageCategory),
+                chestProtector: calculateChestProtector(height, weight, ageCategory, armSpan),
+                glove: calculateGlove(handLength),
+                blocker: calculateBlocker(handLength),
+                pants: calculatePants(height, weight, ageCategory, waist, hipToKnee),
+                jock: calculateJock(waist, ageCategory),
+                legPads: calculateLegPads(floorToKnee, height, ageCategory),
+                skates: calculateSkates(shoeSize, skateFit),
+                stick: calculateStick(height, ageCategory)
+            };
+            
+            // Colors matching brand
+            const greenColor = [34, 197, 94];
+            const blackColor = [0, 0, 0];
+            const grayColor = [100, 100, 100];
+            
+            // Header with branding
+            doc.setFillColor(...blackColor);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(...greenColor);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('GOALIE GEAR SIZING RESULTS', 105, 15, { align: 'center' });
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text('Powered by Goalie Coaches', 105, 25, { align: 'center' });
+            doc.text('goaliecoaches.com', 105, 32, { align: 'center' });
+            
+            // Goalie Info
+            doc.setTextColor(...blackColor);
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('GOALIE MEASUREMENTS', 20, 50);
+            
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            let yPos = 58;
+            doc.text(`Age: ${age} years`, 20, yPos);
+            doc.text(`Category: ${ageCategory}`, 20, yPos + 6);
+
+            if (unitSystem === 'metric') {
+                doc.text(`Height: ${origHeight} cm (${height.toFixed(1)}")`, 20, yPos + 12);
+                doc.text(`Weight: ${origWeight} kg (${weight.toFixed(1)} lbs)`, 20, yPos + 18);
+            } else {
+                doc.text(`Height: ${origHeight}" (${inchesToCm(origHeight).toFixed(1)} cm)`, 20, yPos + 12);
+                doc.text(`Weight: ${origWeight} lbs (${lbsToKg(origWeight).toFixed(1)} kg)`, 20, yPos + 18);
+            }
+            
+            // Equipment sizes
+            yPos = 90;
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('RECOMMENDED EQUIPMENT SIZES', 20, yPos);
+            
+            yPos += 10;
+            doc.setFontSize(10);
+            
+            const equipment = [
+                {
+                    name: 'Helmet (Mask)',
+                    size: results.helmet.size,
+                    notes: results.helmet.notes,
+                    measurement: results.helmet.measurement,
+                    url: 'goaliecoaches.com/best-goalie-masks-for-protection'
+                },
+                {
+                    name: 'Neck Guard',
+                    size: results.neckGuard.size,
+                    notes: results.neckGuard.notes,
+                    measurement: results.neckGuard.measurement,
+                    url: 'goaliecoaches.com/neck-throat'
+                },
+                {
+                    name: 'Chest Protector',
+                    size: results.chestProtector.size,
+                    notes: results.chestProtector.notes,
+                    measurement: results.chestProtector.measurement,
+                    url: 'goaliecoaches.com/chest-protectors'
+                },
+                {
+                    name: 'Glove (Catcher)',
+                    size: results.glove.size,
+                    notes: results.glove.notes,
+                    measurement: results.glove.measurement,
+                    url: 'goaliecoaches.com/goalie-gloves'
+                },
+                {
+                    name: 'Blocker',
+                    size: results.blocker.size,
+                    notes: results.blocker.notes,
+                    measurement: results.blocker.measurement,
+                    url: 'goaliecoaches.com/best-goalie-blocker'
+                },
+                {
+                    name: 'Goalie Pants',
+                    size: results.pants.size,
+                    notes: results.pants.notes,
+                    measurement: results.pants.measurement,
+                    url: 'goaliecoaches.com/goalie-pants'
+                },
+                {
+                    name: 'Jock / Jill',
+                    size: results.jock.size,
+                    notes: results.jock.notes,
+                    measurement: results.jock.measurement,
+                    url: 'goaliecoaches.com/finding-the-best-goalie-jock'
+                },
+                {
+                    name: 'Leg Pads',
+                    size: results.legPads.size,
+                    notes: results.legPads.notes,
+                    measurement: results.legPads.measurement,
+                    url: 'goaliecoaches.com/best-goalie-pads'
+                },
+                {
+                    name: 'Skates',
+                    size: results.skates.size,
+                    notes: results.skates.notes,
+                    measurement: results.skates.measurement,
+                    url: 'goaliecoaches.com/goalie-skates'
+                },
+                {
+                    name: 'Stick',
+                    size: results.stick.size,
+                    notes: results.stick.notes,
+                    measurement: results.stick.measurement,
+                    url: 'goaliecoaches.com/goalie-sticks'
+                }
+            ];
+            
+            equipment.forEach((item, index) => {
+                // Check if we need a new page
+                if (yPos > 260) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+
+                // Equipment name
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(...blackColor);
+                doc.text(item.name, 20, yPos);
+
+                // Size in green
+                doc.setTextColor(...greenColor);
+                doc.setFontSize(11);
+                doc.text(item.size, 20, yPos + 6);
+
+                let currentY = yPos + 12;
+
+                // Measurement if available
+                if (item.measurement) {
+                    doc.setTextColor(...greenColor);
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(item.measurement, 20, currentY);
+                    currentY += 5;
+                }
+
+                // Notes
+                doc.setTextColor(...grayColor);
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                const splitNotes = doc.splitTextToSize(item.notes, 170);
+                doc.text(splitNotes, 20, currentY);
+
+                const notesHeight = splitNotes.length * 4;
+                currentY += notesHeight + 4;
+
+                // Buying guide URL
+                doc.setTextColor(...greenColor);
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(8);
+                doc.text('Buying Guide:', 20, currentY);
+                doc.setFont(undefined, 'normal');
+                doc.textWithLink(item.url, 42, currentY, { url: 'https://' + item.url });
+
+                yPos = currentY + 10;
+            });
+            
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text('These are general sizing recommendations. Always try on equipment when possible.', 105, 285, { align: 'center' });
+                doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+            }
+            
+            // Generate filename with date
+            const today = new Date().toISOString().split('T')[0];
+            doc.save(`goalie-gear-sizing-${today}.pdf`);
+        }
+    </script>
+</body>
+</html>
