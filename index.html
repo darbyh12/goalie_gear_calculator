@@ -37,7 +37,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 40px 20px;
         }
@@ -71,13 +71,6 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 32px;
-        }
-        
-        @media (min-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 400px 1fr;
-                align-items: start;
-            }
         }
 
         /* Cards */
@@ -1245,28 +1238,35 @@
         function calculateStick(height, category) {
             if (!height) return { size: 'N/A', notes: 'Please provide height', measurement: null };
 
-            let stickSize = '';
+            let paddleSize = '';
 
             if (category === 'Youth') {
-                stickSize = '18-21" paddle, 44-48" overall';
+                paddleSize = '18–20.5"';
             } else if (category === 'Junior') {
-                if (height < 54) stickSize = '21" paddle, 48" overall';
-                else if (height >= 54 && height < 60) stickSize = '23" paddle, 50" overall';
-                else stickSize = '24" paddle, 52" overall';
+                paddleSize = '21–23"';
             } else if (category === 'Intermediate') {
-                if (height < 62) stickSize = '24" paddle, 52" overall';
-                else stickSize = '25" paddle, 54" overall';
+                paddleSize = '23.5–24.5"';
             } else {
-                if (height >= 60 && height < 65) stickSize = '25" paddle, 54" overall';
-                else if (height >= 65 && height < 69) stickSize = '26" paddle, 56" overall';
-                else if (height >= 69) stickSize = '27" paddle, 58" overall';
-                else stickSize = '26" paddle, 56" overall';
+                paddleSize = '25–28.5"+';
             }
 
             return {
-                size: stickSize,
-                notes: 'Standing in skates, stick should reach between chin and nose. Paddle height affects playing style',
-                measurement: `Height: ${formatMeasurement(height)}`
+                size: `${paddleSize} paddle`,
+                notes: `<strong>What matters:</strong><br>
+                Paddle height sets blocker height and blade‑ice contact. Sizing is stance‑based, not overall stick length.<br><br>
+                <strong>How to measure (Bauer method):</strong><br>
+                Measure paddle height by going straight down the back from shoulder to where paddle meets blade.<br><br>
+                <strong>Quick starting points:</strong><br>
+                • Youth: 18–20.5"<br>
+                • Junior: 21–23"<br>
+                • Intermediate: 23.5–24.5"<br>
+                • Senior: 25–28.5"+<br><br>
+                <strong>Validation (always test in skates):</strong><br>
+                • Blade flat on ice<br>
+                • Blocker next to pad with no overlap or gap<br>
+                • If heel lifts → go up a size<br>
+                • If toe lifts → down a size`,
+                measurement: `Height: ${formatMeasurement(height)} | Category: ${category}`
             };
         }
 
